@@ -1,61 +1,30 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <title>부동산 규제 지도</title>
+    <meta charset="utf-8" />
+    <title>지도 테스트</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-      }
+      html,
+      body,
       #map {
         width: 100%;
         height: 100%;
+        margin: 0;
       }
     </style>
+    <!-- ✅ 자동 로딩 방식으로 Kakao Map SDK 불러오기 -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd"></script>
   </head>
   <body>
     <div id="map"></div>
-
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const kakaoMapScript = document.createElement("script");
-        kakaoMapScript.src =
-          "https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd&autoload=false";
-        kakaoMapScript.onload = function () {
-          kakao.maps.load(initMap);
-        };
-        document.head.appendChild(kakaoMapScript);
-      });
-
-      function initMap() {
-        const map = new kakao.maps.Map(document.getElementById("map"), {
-          center: new kakao.maps.LatLng(36.5, 127.8),
-          level: 13,
-        });
-
-        fetch("skorea-municipalities-2018-geo2.json")
-          .then((res) => res.json())
-          .then((geojson) => {
-            geojson.features.forEach((feature) => {
-              const coords = feature.geometry.coordinates[0].map(
-                (coord) => new kakao.maps.LatLng(coord[1], coord[0])
-              );
-
-              new kakao.maps.Polygon({
-                map,
-                path: coords,
-                strokeWeight: 1,
-                strokeColor: "#333",
-                strokeOpacity: 0.8,
-                fillColor: "#dddddd",
-                fillOpacity: 0.6,
-              });
-            });
-          });
-      }
+      const container = document.getElementById("map");
+      const options = {
+        center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울
+        level: 8,
+      };
+      const map = new kakao.maps.Map(container, options);
     </script>
   </body>
 </html>
