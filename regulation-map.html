@@ -19,42 +19,41 @@
   <body>
     <div id="map"></div>
 
+    <!-- ✅ Kakao SDK를 defer로 불러오고 onload에서 initMap 호출 -->
+    <script defer
+      src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd&autoload=false"
+      onload="kakao.maps.load(initMap)">
+    </script>
+
+    <!-- ✅ 지도 초기화 함수 정의 -->
     <script>
-      window.onload = function () {
-        const script = document.createElement("script");
-        script.src =
-          "https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd&autoload=false";
-        script.onload = function () {
-          kakao.maps.load(function () {
-            const map = new kakao.maps.Map(document.getElementById("map"), {
-              center: new kakao.maps.LatLng(36.5, 127.8),
-              level: 13,
-            });
+      function initMap() {
+        const map = new kakao.maps.Map(document.getElementById("map"), {
+          center: new kakao.maps.LatLng(36.5, 127.8),
+          level: 13,
+        });
 
-            // GeoJSON 데이터 로드
-            fetch("skorea-municipalities-2018-geo2.json")
-              .then((response) => response.json())
-              .then((geojson) => {
-                const polygons = geojson.features.map((feature) => {
-                  const coords = feature.geometry.coordinates[0].map(
-                    (coord) => new kakao.maps.LatLng(coord[1], coord[0])
-                  );
+        // GeoJSON 파일 불러오기
+        fetch("skorea-municipalities-2018-geo2.json")
+          .then((response) => response.json())
+          .then((geojson) => {
+            geojson.features.forEach((feature) => {
+              const coords = feature.geometry.coordinates[0].map(
+                (coord) => new kakao.maps.LatLng(coord[1], coord[0])
+              );
 
-                  return new kakao.maps.Polygon({
-                    map: map,
-                    path: coords,
-                    strokeWeight: 1,
-                    strokeColor: "#333",
-                    strokeOpacity: 0.8,
-                    fillColor: "#dddddd",
-                    fillOpacity: 0.6,
-                  });
-                });
+              new kakao.maps.Polygon({
+                map: map,
+                path: coords,
+                strokeWeight: 1,
+                strokeColor: "#333",
+                strokeOpacity: 0.8,
+                fillColor: "#dddddd",
+                fillOpacity: 0.6,
               });
+            });
           });
-        };
-        document.head.appendChild(script);
-      };
+      }
     </script>
   </body>
 </html>
