@@ -1,93 +1,60 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>부동산 규제 지도</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    html, body { margin: 0; padding: 0; height: 100%; }
-    #map { width: 100%; height: 100vh; }
-  </style>
-  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd&autoload=false&libraries=services"></script>
-</head>
-<body>
-  <div id="map"></div>
-  <script>
-    kakao.maps.load(function () {
-      const map = new kakao.maps.Map(document.getElementById('map'), {
-        center: new kakao.maps.LatLng(36.5, 127.8),
-        level: 13
-      });
+  <head>
+    <meta charset="UTF-8" />
+    <title>부동산 규제 지도</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
 
-      const speculationZones = ["용산구"];
-      const speculativeZones = [
-        "과천시", "광명시", "구리시", "군포시", "남동구", "서구", "성남시분당구", "성남시수정구",
-        "세종시", "수성구", "수원시팔달구", "수원시영통구", "수원시장안구", "수원시권선구",
-        "안산시단원구", "안양시동안구", "안양시만안구", "연수구", "용인시기흥구", "용인시수지구",
-        "의왕시", "하남시", "화성시"
-      ];
-      const adjustedZones = [
-        "세종시", "청주시상당구", "청주시서원구", "청주시청원구", "청주시흥덕구",
-        "강남구", "강동구", "강북구", "강서구", "관악구", "광진구", "구로구", "금천구",
-        "노원구", "도봉구", "동대문구", "동작구", "마포구", "서대문구", "서초구", "성동구",
-        "성북구", "송파구", "양천구", "영등포구", "용산구", "은평구", "종로구", "중구", "중랑구",
-        "고양시덕양구", "고양시일산동구", "고양시일산서구", "남양주시", "화성시", "안성시",
-        "성남시중원구", "시흥시", "김포시", "의정부시", "평택시", "광주시", "양주시"
-      ];
-
-      const geojsonUrl = "https://jwy9711.github.io/12/skorea-municipalities-2018-geo2.json";
-
-      fetch(geojsonUrl)
-        .then(res => res.json())
-        .then(geojson => {
-          geojson.features.forEach(feature => {
-            const coords = feature.geometry.coordinates[0].map(pt => new kakao.maps.LatLng(pt[1], pt[0]));
-            const name = feature.properties.name;
-
-            const inSpeculation = speculationZones.includes(name);
-            const inSpeculative = speculativeZones.includes(name);
-            const inAdjusted = adjustedZones.includes(name);
-
-            let color = "#DDDDDD"; // 기본 회색
-            if (inSpeculation) {
-              color = "#FF0000"; // 투기지역
-            } else if (inSpeculative && inAdjusted) {
-              color = "#FFA500"; // 주황색
-            } else if (inSpeculative) {
-              color = "#FFC0CB"; // 핑크
-            } else if (inAdjusted) {
-              color = "#FFFF66"; // 노랑
-            }
-
-            const polygon = new kakao.maps.Polygon({
-              map: map,
-              path: coords,
-              strokeWeight: 2,
-              strokeColor: color,
-              strokeOpacity: 0.8,
-              fillColor: color,
-              fillOpacity: 0.4
+    <script>
+      window.onload = function () {
+        const script = document.createElement("script");
+        script.src =
+          "https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd&autoload=false";
+        script.onload = function () {
+          kakao.maps.load(function () {
+            const map = new kakao.maps.Map(document.getElementById("map"), {
+              center: new kakao.maps.LatLng(36.5, 127.8),
+              level: 13,
             });
 
-            kakao.maps.event.addListener(polygon, 'mouseover', () => {
-              polygon.setOptions({ fillOpacity: 0.7 });
-            });
+            // GeoJSON 데이터 로드
+            fetch("skorea-municipalities-2018-geo2.json")
+              .then((response) => response.json())
+              .then((geojson) => {
+                const polygons = geojson.features.map((feature) => {
+                  const coords = feature.geometry.coordinates[0].map(
+                    (coord) => new kakao.maps.LatLng(coord[1], coord[0])
+                  );
 
-            kakao.maps.event.addListener(polygon, 'mouseout', () => {
-              polygon.setOptions({ fillOpacity: 0.4 });
-            });
-
-            kakao.maps.event.addListener(polygon, 'click', () => {
-              const msg = `${name}: ` +
-                (inSpeculation ? "투기지역" :
-                (inSpeculative && inAdjusted) ? "조정대상지역 + 투기과열지구" :
-                inSpeculative ? "투기과열지구" :
-                inAdjusted ? "조정대상지역" : "비규제지역");
-              alert(msg);
-            });
+                  return new kakao.maps.Polygon({
+                    map: map,
+                    path: coords,
+                    strokeWeight: 1,
+                    strokeColor: "#333",
+                    strokeOpacity: 0.8,
+                    fillColor: "#dddddd",
+                    fillOpacity: 0.6,
+                  });
+                });
+              });
           });
-        });
-    });
-  </script>
-</body>
+        };
+        document.head.appendChild(script);
+      };
+    </script>
+  </body>
 </html>
