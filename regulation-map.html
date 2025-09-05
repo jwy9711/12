@@ -19,23 +19,25 @@
   <body>
     <div id="map"></div>
 
-    <!-- ✅ Kakao SDK를 defer로 불러오고 onload에서 initMap 호출 -->
-    <script defer
-      src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd&autoload=false"
-      onload="kakao.maps.load(initMap)">
-    </script>
-
-    <!-- ✅ 지도 초기화 함수 정의 -->
     <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const kakaoMapScript = document.createElement("script");
+        kakaoMapScript.src =
+          "https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd&autoload=false";
+        kakaoMapScript.onload = function () {
+          kakao.maps.load(initMap);
+        };
+        document.head.appendChild(kakaoMapScript);
+      });
+
       function initMap() {
         const map = new kakao.maps.Map(document.getElementById("map"), {
           center: new kakao.maps.LatLng(36.5, 127.8),
           level: 13,
         });
 
-        // GeoJSON 파일 불러오기
         fetch("skorea-municipalities-2018-geo2.json")
-          .then((response) => response.json())
+          .then((res) => res.json())
           .then((geojson) => {
             geojson.features.forEach((feature) => {
               const coords = feature.geometry.coordinates[0].map(
@@ -43,7 +45,7 @@
               );
 
               new kakao.maps.Polygon({
-                map: map,
+                map,
                 path: coords,
                 strokeWeight: 1,
                 strokeColor: "#333",
