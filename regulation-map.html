@@ -13,18 +13,27 @@
         margin: 0;
       }
     </style>
-    <!-- ✅ 자동 로딩 방식으로 Kakao Map SDK 불러오기 -->
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd"></script>
   </head>
   <body>
     <div id="map"></div>
+
     <script>
-      const container = document.getElementById("map");
-      const options = {
-        center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울
-        level: 8,
+      // ✅ SDK를 동적으로 삽입
+      const script = document.createElement("script");
+      script.src =
+        "https://dapi.kakao.com/v2/maps/sdk.js?appkey=b8652ed77f204a87617e61ab12731dfd&autoload=false";
+      document.head.appendChild(script);
+
+      script.onload = function () {
+        kakao.maps.load(function () {
+          const container = document.getElementById("map");
+          const options = {
+            center: new kakao.maps.LatLng(37.5665, 126.9780),
+            level: 8,
+          };
+          const map = new kakao.maps.Map(container, options);
+        });
       };
-      const map = new kakao.maps.Map(container, options);
     </script>
   </body>
 </html>
